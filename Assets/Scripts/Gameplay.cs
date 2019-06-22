@@ -7,12 +7,11 @@ public class Gameplay : MonoBehaviour
     class Card {
         public int Id;
         public string Name;
-        public int charges;
+        public int chargesInitial;
+        public int chargesCurrent;
 
         public void Activate () {
-            charges--;
-            print(Name);
-            if (charges <= 0) print("putCardFromHandToDeckBottom");
+            print(Name + " activated");
         }
     }
 
@@ -20,17 +19,17 @@ public class Gameplay : MonoBehaviour
     List<Card> hand = new List<Card>();
     int cardSelected = 0;
 
-    public int deckSizeInitial = 30;
-    public int handSizeInitial = 5;
+    public int deckSizeInitial;
+    public int handSizeInitial;
 
-    // Start is called before the first frame update
     void Start()
     {
         for (int i = 0; i < deckSizeInitial; i++) {
             Card c = new Card();
             c.Id = i;
             c.Name = i.ToString();
-            c.charges = Random.Range(1, 5);
+            c.chargesInitial = Random.Range(1, 5);
+            c.chargesCurrent = c.chargesInitial;
             deck.Add(c);
         }
 
@@ -53,11 +52,10 @@ public class Gameplay : MonoBehaviour
         return cards;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            hand[cardSelected].Activate();
+            ActivateCard(hand[cardSelected].Id);
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
@@ -67,10 +65,37 @@ public class Gameplay : MonoBehaviour
 
     void cycleHandPositive () {
         cardSelected++;
-        if (cardSelected > handSizeInitial) cardSelected = 0;
+        if (cardSelected >= hand.Count) cardSelected = 0;
+    }
+
+    void ActivateCard (int id) {
+        foreach (Card c in hand) {
+            if (c.Id == id) {
+                c.Activate();
+                c.chargesCurrent--;
+                if (c.chargesCurrent <= 0) {
+                    putCardFromHandToDeckBottom(id);
+                    drawCardFromDeck();
+                }
+                break;
+            }
+        }
     }
 
     void putCardFromHandToDeckBottom (int id) {
-        // TODO
+        foreach (Card c in hand) {
+            if (c.Id == id) {
+                deck.Add(c);
+                c.chargesCurrent = c.chargesInitial;
+                hand.Remove(c);
+                cycleHandPositive();
+                break;
+            }
+        }
+    }
+
+    void drawCardFromDeck () {
+        hand.Add(deck[0]);
+        deck.RemoveAt(0);
     }
 }
