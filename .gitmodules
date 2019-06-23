@@ -1,0 +1,4 @@
+[submodule "Assets/Scripts/unity-toolkit"]
+	path = Assets/Scripts/unity-toolkit
+	url = git@github.com:dbltnk/unity-toolkit.git
+	branch = master
