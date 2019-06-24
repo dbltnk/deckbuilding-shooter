@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using utk;
+using UTK;
 
 public class Gameplay : MonoBehaviour
 {
@@ -34,9 +34,11 @@ public class Gameplay : MonoBehaviour
             deck.Add(c);
         }
 
-        Shuffler.Shuffle(deck);
+        Cards.Shuffle(deck);
 
         hand = Draw(handSizeInitial);
+
+        //int i = MapIntoRange()
     }
 
     List<Card> Draw (int amount) {
