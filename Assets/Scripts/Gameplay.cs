@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UTK;
+using UnityEngine.UI;
 
 public class Gameplay : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class Gameplay : MonoBehaviour
     public int deckSizeInitial;
     public int handSizeInitial;
 
+    public GameObject PrefCard;
+    public Transform HandUIRoot;
+    public GameObject PrefSelector;
+    public Transform HUDRoot;
+    GameObject PrefSelectorInstance; 
+
     void Start()
     {
         for (int i = 0; i < deckSizeInitial; i++) {
@@ -37,8 +44,6 @@ public class Gameplay : MonoBehaviour
         Cards.Shuffle(deck);
 
         hand = Draw(handSizeInitial);
-
-        //int i = MapIntoRange()
     }
 
     List<Card> Draw (int amount) {
@@ -64,6 +69,23 @@ public class Gameplay : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
             cycleHandPositive();
         }
+
+        foreach (Transform child in HandUIRoot) {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        foreach (Card c in hand) {
+            GameObject go = Instantiate(PrefCard, HandUIRoot);
+            Text nameCard = go.transform.Find("Name").GetComponent<Text>();
+            Text chargesInitialCard = go.transform.Find("Charges").transform.Find("ChargesInitial").GetComponent<Text>();
+            Text chargesCurrentCard = go.transform.Find("Charges").transform.Find("ChargesCurrent").GetComponent<Text>();
+            nameCard.text = c.Name;
+            chargesInitialCard.text = c.chargesInitial.ToString();
+            chargesCurrentCard.text = c.chargesCurrent.ToString();
+        }
+
+        if (PrefSelectorInstance != null) GameObject.Destroy(PrefSelectorInstance);
+        PrefSelectorInstance = Instantiate(PrefSelector, HandUIRoot.GetChild(cardSelected).transform.position + new Vector3(0f, 50f, 0f), HandUIRoot.GetChild(cardSelected).transform.rotation, HUDRoot);
     }
 
     void cycleHandPositive () {
