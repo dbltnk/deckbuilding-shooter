@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UTK;
 using UnityEngine.UI;
+using TMPro;
 
 public class Gameplay : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class Gameplay : MonoBehaviour
         public string Name;
         public int chargesInitial;
         public int chargesCurrent;
+        public Color color;
 
         public void Activate () {
             print(Name + " activated");
@@ -38,6 +40,10 @@ public class Gameplay : MonoBehaviour
             c.Name = i.ToString();
             c.chargesInitial = Random.Range(1, 5);
             c.chargesCurrent = c.chargesInitial;
+            float r = Random.Range(0f, 1f);
+            float g = Random.Range(0f, 1f);
+            float b = Random.Range(0f, 1f);
+            c.color = new Color(r, g, b);
             deck.Add(c);
         }
 
@@ -76,12 +82,13 @@ public class Gameplay : MonoBehaviour
 
         foreach (Card c in hand) {
             GameObject go = Instantiate(PrefCard, HandUIRoot);
-            Text nameCard = go.transform.Find("Name").GetComponent<Text>();
-            Text chargesInitialCard = go.transform.Find("Charges").transform.Find("ChargesInitial").GetComponent<Text>();
-            Text chargesCurrentCard = go.transform.Find("Charges").transform.Find("ChargesCurrent").GetComponent<Text>();
+            TMP_Text nameCard = go.transform.Find("Name").GetComponent<TMP_Text>();
+            TMP_Text chargesInitialCard = go.transform.Find("Charges").transform.Find("ChargesInitial").GetComponent<TMP_Text>();
+            TMP_Text chargesCurrentCard = go.transform.Find("Charges").transform.Find("ChargesCurrent").GetComponent<TMP_Text>();
             nameCard.text = c.Name;
             chargesInitialCard.text = c.chargesInitial.ToString();
             chargesCurrentCard.text = c.chargesCurrent.ToString();
+            go.GetComponent<Image>().color = c.color;
         }
 
         if (PrefSelectorInstance != null) GameObject.Destroy(PrefSelectorInstance);
@@ -113,7 +120,7 @@ public class Gameplay : MonoBehaviour
                 deck.Add(c);
                 c.chargesCurrent = c.chargesInitial;
                 hand.Remove(c);
-                cycleHandPositive();
+                //cycleHandPositive();
                 break;
             }
         }
