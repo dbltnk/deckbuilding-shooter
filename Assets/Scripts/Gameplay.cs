@@ -10,14 +10,27 @@ public class Gameplay : MonoBehaviour
     public class Card {
         public int Id;
         public string Name;
-        public int chargesInitial;
-        public int chargesCurrent;
+        public int ChargesInitial;
+        public int ChargesCurrent;
         public Color color;
 
         public void Activate () {
             print(Name + " activated");
         }
+
+        public Ability Ability;
     }
+
+    public class Ability {
+        public string Name;
+        public float ProjectileSpeed;
+        public float ProjectileSize;
+        public float ProjectileLifetime;
+        public Color ProjectileColor;
+        public float Timeout;
+    }
+
+    public List<Ability> AbilitiesAvailable = new List<Ability>();
 
     List<Card> deck = new List<Card>();
     List<Card> hand = new List<Card>();
@@ -38,16 +51,42 @@ public class Gameplay : MonoBehaviour
 
     void Start ()
     {
+        Ability fireball = new Ability();
+        fireball.Name = "Fireball";
+        fireball.ProjectileSpeed = 2f;
+        fireball.ProjectileSize = 0.6f;
+        fireball.ProjectileLifetime = 1.5f;
+        fireball.ProjectileColor = Color.red;
+        fireball.Timeout = 3f;
+        AbilitiesAvailable.Add(fireball);
+
+        Ability lightningOrb = new Ability();
+        lightningOrb.Name = "Lightning Orb";
+        lightningOrb.ProjectileSpeed = 4f;
+        lightningOrb.ProjectileSize = 0.3f;
+        lightningOrb.ProjectileLifetime = 0.75f;
+        lightningOrb.ProjectileColor = Color.yellow;
+        lightningOrb.Timeout = 1f;
+        AbilitiesAvailable.Add(lightningOrb);
+
+        Ability ping = new Ability();
+        ping.Name = "Ping";
+        ping.ProjectileSpeed = 8f;
+        ping.ProjectileSize = 0.15f;
+        ping.ProjectileLifetime = 0.15f;
+        ping.ProjectileColor = Color.gray;
+        ping.Timeout = 0.33f;
+        AbilitiesAvailable.Add(ping);
+
         for (int i = 0; i < deckSizeInitial; i++) {
             Card c = new Card();
+            int ability = Random.Range(0, AbilitiesAvailable.Count);
+            c.Ability = AbilitiesAvailable[ability];
             c.Id = i;
-            c.Name = i.ToString();
-            c.chargesInitial = Random.Range(1, 5);
-            c.chargesCurrent = c.chargesInitial;
-            float r = Random.Range(0f, 1f);
-            float g = Random.Range(0f, 1f);
-            float b = Random.Range(0f, 1f);
-            c.color = new Color(r, g, b);
+            c.ChargesInitial = Random.Range(1, 5);
+            c.ChargesCurrent = c.ChargesInitial;
+            c.Name = c.Ability.Name + " (" + c.ChargesInitial.ToString() + ")";
+            c.color = c.Ability.ProjectileColor;
             deck.Add(c);
         }
 
@@ -94,8 +133,8 @@ public class Gameplay : MonoBehaviour
             TMP_Text chargesInitialCard = go.transform.Find("Charges").transform.Find("ChargesInitial").GetComponent<TMP_Text>();
             TMP_Text chargesCurrentCard = go.transform.Find("Charges").transform.Find("ChargesCurrent").GetComponent<TMP_Text>();
             nameCard.text = c.Name;
-            chargesInitialCard.text = c.chargesInitial.ToString();
-            chargesCurrentCard.text = c.chargesCurrent.ToString();
+            chargesInitialCard.text = c.ChargesInitial.ToString();
+            chargesCurrentCard.text = c.ChargesCurrent.ToString();
             go.GetComponent<Image>().color = c.color;
 
             float scale = 1f;
@@ -130,8 +169,8 @@ public class Gameplay : MonoBehaviour
         foreach (Card c in hand) {
             if (c.Id == id) {
                 c.Activate();
-                c.chargesCurrent--;
-                if (c.chargesCurrent <= 0) {
+                c.ChargesCurrent--;
+                if (c.ChargesCurrent <= 0) {
                     putCardFromHandToDeckBottom(id);
                     drawCardFromDeck();
                 }
@@ -144,7 +183,7 @@ public class Gameplay : MonoBehaviour
         foreach (Card c in hand) {
             if (c.Id == id) {
                 deck.Add(c);
-                c.chargesCurrent = c.chargesInitial;
+                c.ChargesCurrent = c.ChargesInitial;
                 hand.Remove(c);
                 //cycleHandPositive();
                 break;
@@ -169,6 +208,7 @@ public class Gameplay : MonoBehaviour
 
         point = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, cam.nearClipPlane));
 
+        // TODO TIMEOUT BETWEEN ABILITY USES
         if (Input.GetKeyDown(KeyCode.Mouse0)) controller.LaunchProjectile(point, hand[cardSelected]);
     }
 }

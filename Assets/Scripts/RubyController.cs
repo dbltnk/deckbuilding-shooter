@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class RubyController : MonoBehaviour
@@ -142,24 +143,33 @@ public class RubyController : MonoBehaviour
     public void LaunchProjectile(Vector2 worldPos, Gameplay.Card card)
     {
         GameObject projectileObject = Instantiate(projectilePrefab, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
+        projectileObject.transform.localScale = new Vector3(card.Ability.ProjectileSize, card.Ability.ProjectileSize, card.Ability.ProjectileSize);
 
         Projectile projectile = projectileObject.GetComponent<Projectile>();
 
         Vector2 dir = worldPos - rigidbody2d.position;
 
-        projectile.Launch(dir.normalized, 300);
+        projectile.Launch(dir.normalized, card.Ability.ProjectileSpeed * 100f);
         
         animator.SetTrigger("Launch");
         audioSource.PlayOneShot(shootingSound);
 
         SpriteRenderer rend = projectileObject.GetComponent<SpriteRenderer>();
-        rend.color = card.color;
+        rend.color = card.Ability.ProjectileColor;
 
         TrailRenderer trail = projectileObject.GetComponentInChildren<TrailRenderer>();
-        trail.startColor = card.color;
+        trail.startColor = card.Ability.ProjectileColor;
         trail.endColor = Color.white;
+        trail.startWidth = card.Ability.ProjectileSize;
+
+        StartCoroutine(CoDestroy(projectileObject, card.Ability.ProjectileLifetime));
     }
     
+    IEnumerator CoDestroy (GameObject go, float lifetime) {
+        yield return new WaitForSeconds(lifetime);
+        Destroy(go);
+    }
+
     // =============== SOUND ==========================
 
     //Allow to play a sound on the player sound source. used by Collectible
