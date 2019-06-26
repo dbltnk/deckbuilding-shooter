@@ -7,7 +7,7 @@ using TMPro;
 
 public class Gameplay : MonoBehaviour
 {
-    class Card {
+    public class Card {
         public int Id;
         public string Name;
         public int chargesInitial;
@@ -30,9 +30,13 @@ public class Gameplay : MonoBehaviour
     public Transform HandUIRoot;
     public GameObject PrefSelector;
     public Transform HUDRoot;
-    GameObject PrefSelectorInstance; 
+    GameObject PrefSelectorInstance;
 
-    void Start()
+    public GameObject Character;
+    RubyController controller;
+    private Camera cam;
+
+    void Start ()
     {
         for (int i = 0; i < deckSizeInitial; i++) {
             Card c = new Card();
@@ -50,6 +54,9 @@ public class Gameplay : MonoBehaviour
         Cards.Shuffle(deck);
 
         hand = Draw(handSizeInitial);
+
+        controller = Character.GetComponent<RubyController>();
+        cam = Camera.main;
     }
 
     List<Card> Draw (int amount) {
@@ -148,5 +155,20 @@ public class Gameplay : MonoBehaviour
     void drawCardFromDeck () {
         hand.Add(deck[0]);
         deck.RemoveAt(0);
+    }
+
+    void OnGUI () {
+        Vector3 point = new Vector3();
+        Event currentEvent = Event.current;
+        Vector2 mousePos = new Vector2();
+
+        // Get the mouse position from Event.
+        // Note that the y position from Event is inverted.
+        mousePos.x = currentEvent.mousePosition.x;
+        mousePos.y = cam.pixelHeight - currentEvent.mousePosition.y;
+
+        point = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, cam.nearClipPlane));
+
+        if (Input.GetKeyDown(KeyCode.Mouse0)) controller.LaunchProjectile(point, hand[cardSelected]);
     }
 }

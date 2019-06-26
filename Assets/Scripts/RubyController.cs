@@ -40,8 +40,6 @@ public class RubyController : MonoBehaviour
     // ================= SOUNDS =======================
     AudioSource audioSource;
 
-    private Camera cam;
-
     void Start()
     {
         // =========== MOVEMENT ==============
@@ -56,9 +54,6 @@ public class RubyController : MonoBehaviour
         
         // ==== AUDIO =====
         audioSource = GetComponent<AudioSource>();
-
-        cam = Camera.main;
-
     }
 
     void Update()
@@ -144,7 +139,7 @@ public class RubyController : MonoBehaviour
     }
     
     // =============== PROJECTICLE ========================
-    void LaunchProjectile(Vector2 worldPos)
+    public void LaunchProjectile(Vector2 worldPos, Gameplay.Card card)
     {
         GameObject projectileObject = Instantiate(projectilePrefab, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
 
@@ -156,6 +151,13 @@ public class RubyController : MonoBehaviour
         
         animator.SetTrigger("Launch");
         audioSource.PlayOneShot(shootingSound);
+
+        SpriteRenderer rend = projectileObject.GetComponent<SpriteRenderer>();
+        rend.color = card.color;
+
+        TrailRenderer trail = projectileObject.GetComponentInChildren<TrailRenderer>();
+        trail.startColor = card.color;
+        trail.endColor = Color.white;
     }
     
     // =============== SOUND ==========================
@@ -165,29 +167,4 @@ public class RubyController : MonoBehaviour
     {
         audioSource.PlayOneShot(clip);
     }
-
-    void OnGUI () {
-        Vector3 point = new Vector3();
-        Event currentEvent = Event.current;
-        Vector2 mousePos = new Vector2();
-
-        // Get the mouse position from Event.
-        // Note that the y position from Event is inverted.
-        mousePos.x = currentEvent.mousePosition.x;
-        mousePos.y = cam.pixelHeight - currentEvent.mousePosition.y;
-
-        point = cam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, cam.nearClipPlane));
-
-        // ============== PROJECTILE ======================
-
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-            LaunchProjectile(point);
-
-        //GUILayout.BeginArea(new Rect(20, 20, 250, 120));
-        //GUILayout.Label("Screen pixels: " + cam.pixelWidth + ":" + cam.pixelHeight);
-        //GUILayout.Label("Mouse position: " + mousePos);
-        //GUILayout.Label("World position: " + point.ToString("F3"));
-        //GUILayout.EndArea();
-    }
-
 }
