@@ -80,6 +80,7 @@ public class Gameplay : MonoBehaviour
             GameObject.Destroy(child.gameObject);
         }
 
+        int counter = 0;
         foreach (Card c in hand) {
             GameObject go = Instantiate(PrefCard, HandUIRoot);
             TMP_Text nameCard = go.transform.Find("Name").GetComponent<TMP_Text>();
@@ -89,10 +90,28 @@ public class Gameplay : MonoBehaviour
             chargesInitialCard.text = c.chargesInitial.ToString();
             chargesCurrentCard.text = c.chargesCurrent.ToString();
             go.GetComponent<Image>().color = c.color;
+
+            float scale = 1f;
+            switch (counter) {
+                case 0: scale = 1f; break;
+                case 1: scale = 1.1f; break;
+                case 2: scale = 1.2f; break;
+                case 3: scale = 1.1f; break;
+                case 4: scale = 1f; break;
+                default: scale = 1f; break;
+            }
+            go.transform.localScale = new Vector3(scale, scale, scale);
+
+            bool selected = (counter == cardSelected) ? true : false;
+            go.transform.Find("Frame").gameObject.SetActive(selected);
+        
+            counter++;
         }
 
         if (PrefSelectorInstance != null) GameObject.Destroy(PrefSelectorInstance);
-        PrefSelectorInstance = Instantiate(PrefSelector, HandUIRoot.GetChild(cardSelected).transform.position + new Vector3(0f, 50f, 0f), HandUIRoot.GetChild(cardSelected).transform.rotation, HUDRoot);
+        Transform uiCardSelected = HandUIRoot.GetChild(cardSelected);
+        PrefSelectorInstance = Instantiate(PrefSelector, uiCardSelected.position + new Vector3(0f, 40f * uiCardSelected.localScale.magnitude, 0f), uiCardSelected.rotation, HUDRoot);
+
     }
 
     void cycleHandPositive () {
